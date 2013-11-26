@@ -164,7 +164,13 @@ ProteinNodePointer addProteinNode(ProteinNodePointer root, char *id,
 
 int pep2prot(ProteinNodePointer *root, FastaPointer fasta,
 	PeptidePointer *peptides, double **pepQuant, double **spectralCounts,
-	int peptideCount, int fileCount){
+	int peptideCount, int fileCount, char ***proteinMap){
+
+	(*proteinMap) = (char**)malloc(sizeof(char*)*peptideCount);
+	if(!proteinMap){
+		fprintf(stderr, "Could not allocated memory for protein map!\n");
+		exit(EXIT_FAILURE);
+	}
 
 	ProteinNodePointer pnp = NULL;
 	int proteinCount = 0;
@@ -191,8 +197,8 @@ int pep2prot(ProteinNodePointer *root, FastaPointer fasta,
 			prots[strlen(prots)-1] = '\0'; //remove ';' from protein name
 			pnp = addProteinNode(pnp, prots, pepQuant[i], spectralCounts[i],
 				fileCount, isHeavy);
-			free(prots);
 		}
+		(*proteinMap)[i] = prots;
 		free(stripped);
 	}
 	
@@ -266,3 +272,16 @@ void printProtTable(ProteinNodePointer pnp, SpectraFileNodePointer filelist,
 	return;
 }
 
+
+char **delProteinMap(char** proteinMap, int peptideCount){
+
+	for(int i=0; i<peptideCount; ++i){
+		if(proteinMap[i]){
+			free(proteinMap[i]);
+			proteinMap[i] = NULL;
+		}
+	}
+	free(proteinMap);
+	proteinMap = NULL;
+	return proteinMap;
+}

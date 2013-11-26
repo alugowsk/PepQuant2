@@ -44,11 +44,11 @@ typedef struct proteinNode {
 /*
  * pep2prot - Convert a table of peptide intensities into a linked list of 
  *     proteins with intensity information. Return the number of proteins in
- *     the linked list.     
+ *     the linked list.
  */
 int pep2prot(ProteinNodePointer *root, FastaPointer fasta,
 	PeptidePointer *peptides, double **pepQuant, double **spectralCounts,
-	int peptideCount, int fileCount);
+	int peptideCount, int fileCount, char ***proteinMap);
 
 /*
  * prot2table - Copy the intensities values contained in a protein list to a
@@ -70,6 +70,11 @@ ProteinNodePointer delProteinList(ProteinNodePointer pnp);
  */
 void printProtTable(ProteinNodePointer pnp, SpectraFileNodePointer filelist,
 	int proteinCount, int fileCount, double **table, char *filename);
+
+/*
+ * delProteinMap - Free all memory allocated for the proteinMap.
+ */
+char **delProteinMap(char** proteinMap, int peptideCount);
 
 #endif
 

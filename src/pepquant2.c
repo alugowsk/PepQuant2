@@ -228,24 +228,26 @@ int main(int argc, char *argv[]){
 	double **spectralCounts = new2Darray(peptideCount, fileCount);
 	countSpectra(peptides, peptideCount, filelist, spectralCounts);
 
-	/*print quantitation results*/
-	printf("Printing intensities and spectral counts.\n");
-	printTable(peptides, filelist, peptideCount, fileCount, quantification,
-		"quant.txt");
-	printTable(peptides, filelist, peptideCount, fileCount, spectralCounts,
-		"pepSpectra.txt");
-
 	/*convert protein information to proteins*/
 	printf("Converting peptide information to protein level.\n");
 	ProteinNodePointer pnp = NULL;
+
+	char **proteinMap = NULL;
 	int proteinCount = pep2prot(&pnp, fasta, peptides, quantification,
-		spectralCounts, peptideCount, fileCount);
+		spectralCounts, peptideCount, fileCount, &proteinMap);
 	double **protQuant = new2Darray(proteinCount, fileCount);
 	double **protLQuant = new2Darray(proteinCount, fileCount);
 	double **protHQuant = new2Darray(proteinCount, fileCount);
 	double **protSpectralCounts = new2Darray(proteinCount, fileCount);
 	prot2table(pnp, &protQuant, &protHQuant, &protLQuant, &protSpectralCounts,
 		proteinCount, fileCount);
+
+	/*print quantitation results*/
+	printf("Printing intensities and spectral counts.\n");
+	printPepTable(peptides, filelist, peptideCount, fileCount, quantification,
+		"quant.txt", proteinMap);
+	printPepTable(peptides, filelist, peptideCount, fileCount, spectralCounts,
+		"pepSpectra.txt", proteinMap);
 
 	/*print protein quantitation results*/
 	printf("Printing protein intensities.\n");
@@ -273,6 +275,7 @@ int main(int argc, char *argv[]){
 	
 	/*Cleanup*/
 	printf("Cleaning up.\n");
+	proteinMap = delProteinMap(proteinMap, peptideCount);
 	pp = delPeptideList(pp);
 	free(peptides);
 	pnp = delProteinList(pnp);

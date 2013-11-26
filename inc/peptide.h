@@ -133,11 +133,21 @@ PeptidePointer initIsotopicPatterns(PeptidePointer root,
 void printSearchResults(PeptidePointer *peptides, int peptideCount);
 
 /*
- * printTable - Print a table of peptide intensities for every peptide, in the
+ * printTable - Print a table of peptide values for every peptide, in the
  *     peptide list and every file in the filelist.
  */
 void printTable(PeptidePointer *peptides, SpectraFileNodePointer filelist,
 	int peptideCount, int fileCount, double **table, char *filename);
+
+/*
+ * printPepTable - Print a table of peptide values for every peptide, in the
+ *     peptide list and every file in the filelist. Like printTable but last
+ *     column is a semicolon seperated list of proteins to which the peptide
+ *     maps;
+ */
+void printPepTable(PeptidePointer *peptides, SpectraFileNodePointer filelist,
+	int peptideCount, int fileCount, double **table, char *filename,
+	char **proteinMap);
 
 /*
  * searchMzXMLs - For every mzXML file in the mzXML filelist search ms1 spectra

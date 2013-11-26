@@ -1060,6 +1060,35 @@ void printTable(PeptidePointer *peptides, SpectraFileNodePointer filelist,
 }
 
 
+void printPepTable(PeptidePointer *peptides, SpectraFileNodePointer filelist,
+	int peptideCount, int fileCount, double **table, char *filename,
+	char **proteinMap){
+
+	FILE *fp = fopen(filename, "w");
+	if (fp == NULL)	{
+   		fprintf(stderr, "Error opening file: %s !\n", filename);
+	}
+
+	while(filelist != NULL){
+		fprintf(fp, "\t%s", filelist->rawFile);
+		filelist = filelist->next;
+	}
+	fprintf(fp, "\tProteins\n");
+
+	int i;
+	int j;
+	for(i = 0; i < peptideCount; ++i){
+		fprintf(fp, "%s", peptides[i]->sequence);
+		for(j = 0; j < fileCount; ++j){
+			fprintf(fp, "\t%.6e", table[i][j]);
+		}
+		fprintf(fp, "\t%s\n", proteinMap[i]==NULL? "" : proteinMap[i]);
+	}
+	fclose(fp);
+	return;
+}
+
+
 void searchMzXMLs(PeptidePointer *peptides, int peptideCount,
 	SpectraFileNodePointer filelist){
 
