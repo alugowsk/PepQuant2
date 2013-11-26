@@ -107,6 +107,11 @@ int main(int argc, char *argv[]){
 
 	parseArgs(argc, argv);
 
+	/*read FASTA file*/
+	printf("Reading fasta %s\n", fastaName);
+	FastaPointer fasta;
+	readFASTA(fastaName, &fasta );
+
 	/*parse input file(s) and init peptide list*/
 	PeptidePointer pp = &TNILL;
 	if(maxQuant){
@@ -123,11 +128,6 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	/*read FASTA file*/
-	printf("Reading fasta %s\n", fastaName);
-	FastaPointer fasta;
-	readFASTA(fastaName, &fasta );
-	
 	/*get peptides list and generate isotopic patterns*/
 	int peptideCount = getCount(pp);
 	printf("\tFound %d peptides!\n", peptideCount);
