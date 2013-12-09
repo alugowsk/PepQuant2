@@ -178,7 +178,7 @@ void searchSpectra( void *ptr);
  *     the ms1 spectra recording intensities for hits. Return 1 if at least one
  *     charge state showed all required peaks.
  */
-int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass);
+int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass, char *seq, char*filename);
 
 /*
  * binSearch - a traditional binary search except rather than direct equality
@@ -650,7 +650,7 @@ void searchSpectra(void *ptr ){
 			}
 
 			/*search for hits*/
-			int valid = checkChargeStates(sp, foundPattern, isoMass);
+			int valid = checkChargeStates(sp, foundPattern, isoMass, pp->sequence, mzXML->filename);
 			/*check hit correlation and validity. record valid hits*/
 			if(valid &&
 				pearson(pp->ip->intensity, foundPattern, corr) >= corrCutOff &&
@@ -674,7 +674,7 @@ void searchSpectra(void *ptr ){
  *     left and a +1 direction means right. The peak boundary is set at the
  *     nearest zero intensity or next nondecreasing intensity value.
  */
-float sumPeak(float *point, int direction){
+float sumPeak(float *point, ScanPointer sp, int direction, char *seq, char*filename, int scan){
 	if(direction != -1 && direction != 1){
 		fprintf(stderr, "The direction passed to sumPeak was not +/-1\n");
 		exit(EXIT_FAILURE);
@@ -683,10 +683,12 @@ float sumPeak(float *point, int direction){
 	float total_intensity = 0;
 	while(point != NULL){
 		total_intensity += *point;
-		float *next = point += direction;
-		if(*next == 0)
+		float *next = point + direction;
+		//printf("%s\t%s\t%d\t%f\t%f\t%d\n", seq, filename, scan, *point, *(sp->mzList+(point - sp->intList)), goinDown);
+
+		if(*next < 0.001)
 			break;
-		else if( !goinDown && (*next - *point ) < 0)
+		if( !goinDown && (*next - *point ) < 0)
 			goinDown = 1;
 		else if( goinDown && (*next - *point ) > 0 )
 			break;
@@ -696,7 +698,7 @@ float sumPeak(float *point, int direction){
 }
 
 
-int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass){
+int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass, char *seq, char*filename){
 
 	float *head = sp->mzList;
 	float *tail = head + sp->peaksCount - 1;
@@ -734,6 +736,29 @@ int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass){
 				//foundPattern[i] += sp->intList[tempIndex-head];
 				tempIndex++;
 			}
+
+
+			if(sp->intList[bestHit-head] < 0.001){
+				//look left
+				float *tempLindex = bestHit-1;
+				float ppmLerror = 1;
+				while((tempLindex >= head) &&
+					(ppmLerror = fabs( (*tempLindex) - isoMass[i])/ isoMass[i]) >= ppmCutOff &&
+					(sp->intList[bestHit-tempLindex] < 0.001)){
+
+					--tempLindex;
+				}
+				float *tempRindex = bestHit+1;
+				float ppmRerror = 1;
+				while((tempRindex <= tail) &&
+					(ppmRerror = fabs( (*tempRindex) - isoMass[i])/ isoMass[i]) >= ppmCutOff &&
+					(sp->intList[bestHit-tempRindex] < 0.001)){
+
+					++tempRindex;
+				}
+				bestHit = ppmLerror < ppmRerror ? tempLindex : tempRindex;
+			}
+
 			// I have found the most precise recorded mz within the
 			// theoretical window. If at least part of the peak falls here
 			// than sum that peak.
@@ -744,12 +769,12 @@ int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass){
 					while(*(tempIndex-1) < *tempIndex){
 						--tempIndex;
 					}
-					foundPattern[i] += sumPeak(tempIndex, 1);
+					foundPattern[i] += sumPeak(tempIndex, sp, 1, seq, filename, sp->scanNum);
 				}else if(*tempIndex > *(tempIndex+1)){
 					while(*(tempIndex+1) < *tempIndex){
 						++tempIndex;
 					}
-					foundPattern[i] += sumPeak(tempIndex, -1);
+					foundPattern[i] += sumPeak(tempIndex, sp, -1, seq, filename, sp->scanNum);
 				}
 			}
 		}
