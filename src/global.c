@@ -65,7 +65,7 @@ void parseArgs(int argc, char *argv[]){
 			case 'h':
 			case 'H':
 				printHelp();
-				exit(1);
+				exit(EXIT_SUCCESS);
 			case 'i':
 			case 'I':
 				intCutOff = atof(argv[i+1]);
@@ -111,6 +111,11 @@ void parseArgs(int argc, char *argv[]){
 				threadCount = atoi(argv[i+1]);
 				i+=2;
 				break;
+			case 'v':
+			case 'V':
+				printf("PepQuant2\n\tcommit: %s\n\tversion: %s\n",
+						commit, gitversion);
+				exit(EXIT_SUCCESS);
 			case 'x':
 			case 'X':
 				statQuestdir = argv[i+1];
@@ -201,6 +206,7 @@ void printHelp(){
 			"\t-t integer\tThe number of threads to use during isotopic\n"
 			"\t\t\tpattern generation and MS1 spectra interrogation.\n"
 			"\t\t\tDefault = 1\n"
+			"\t-v\t\tPrint the current version of PepQuant2\n"
 			);
 	return;
 }

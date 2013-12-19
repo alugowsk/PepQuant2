@@ -44,6 +44,9 @@ extern char *pepXMLdir;
 extern char *maxQuant;
 extern bool ignoreModSite;
 
+extern const char *gitversion;
+extern const char *commit;
+
 void parseArgs(int argc, char *argv[]);
 
 #endif
