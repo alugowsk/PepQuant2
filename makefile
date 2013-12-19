@@ -9,6 +9,8 @@ INCLUDES = -I/usr/include/libxml2 -I./inc
 LIBS     = -lm -lxml2 -lpthread
 CC       = gcc
 
+all: pepquant2
+
 #link the executable
 pepquant2: $(OBJS)
 	$(CC) $(OBJS) $(LIBS) -o pepquant2
