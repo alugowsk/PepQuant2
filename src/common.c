@@ -58,15 +58,8 @@ double median(double *list, int size){
 				( (copyList[3*size/4-1] + copyList[3*size/4]) / 2);
 	double iqr = third_quartile - first_quartile;
 	if(iqr > 250) {
-		printf("%f, %f, %f\n", first_quartile,
-				(size%2)?
-						(copyList[size/2]):
-						( (copyList[size/2-1] + copyList[size/2]) / 2 ),
-				third_quartile);
 		return 0;
 	}
-
-
 
 	if(size%2){
 		return (copyList[size/2]);

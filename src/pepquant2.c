@@ -179,12 +179,12 @@ int main(int argc, char *argv[]){
 	medianRTtimes(ms1median, ms2median, ms1rt, ms2rt, peptideCount, fileCount,
 		peptides);
 
-	/*determine ms2 retention time callibration*/
+	/*determine ms2 retention time calibration*/
 	printf("Determining ms2 retention time calibration.\n");
 	double **ms2params = 
 		leastSquares(ms2rt, ms2median, peptideCount, fileCount);
 
-	/*determine ms1 retention time callibration*/
+	/*determine ms1 retention time calibration*/
 	printf("Determining ms1 retention time calibration.\n");
 	double **ms1params = 
 		leastSquares(ms1rt, ms1median, peptideCount, fileCount);
@@ -215,6 +215,25 @@ int main(int argc, char *argv[]){
 	align(ms2rt, ms1rt, ms2median, ms1median, ms2params, ms1params,
 		peptideCount, fileCount);
 	
+	/*correct for 0 median ms1 and ms2 RT*/
+	int rem_count = 0;
+	i = 0;
+	while ( i < peptideCount ) {
+		if (ms1median[i] == 0 && ms2median[i] == 0){
+			++rem_count;
+			free(ms2rt[i]);
+			ms2rt[i] = ms2rt[peptideCount-1];
+			ms2rt[peptideCount-1] = NULL;
+			free(peptides[i]);
+			peptides[i]= peptides[peptideCount-1];
+			peptides[peptideCount-1] = NULL;
+			--peptideCount;
+		} else {
+			i++;
+		}
+	}
+	printf("Removed %d peptides for 0 median ms1 and ms2 RTs", rem_count);
+
 	/*print callibrated rt table*/
 	printf("Printing aligned rt table.\n");
 	printTable(peptides, filelist, peptideCount, fileCount, ms2rt, "rt.txt");
