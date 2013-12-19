@@ -27,6 +27,7 @@
 #include <stdlib.h> //qsort, malloc, free
 #include <string.h> //memcpy
 #include <math.h> //fabs, fmax
+#include <stdio.h>
 
 int comparedouble (const void * a, const void * b){
 	return ( *(double*)b - *(double*)a );
@@ -41,9 +42,31 @@ double median(double *list, int size){
 	qsort(copyList, size, sizeof(double), comparedouble); 
 	
 	/*remove zeroes if list does not contain negative values*/
-	while(copyList[size-1] == 0){
+	while(size > 0 && copyList[size-1] == 0){
 		size--;
 	}
+
+	/* want at least three non-zero entries to take median */
+	if (size < 3) return 0;
+
+	/* IQR should be reasonable */
+	double third_quartile = (size/2)%2 ?
+			(copyList[size/4]) :
+			( (copyList[size/4-1] + copyList[size/4]) / 2);
+	double first_quartile = (size/2)%2 ?
+				(copyList[3*size/4]) :
+				( (copyList[3*size/4-1] + copyList[3*size/4]) / 2);
+	double iqr = third_quartile - first_quartile;
+	if(iqr > 250) {
+		printf("%f, %f, %f\n", first_quartile,
+				(size%2)?
+						(copyList[size/2]):
+						( (copyList[size/2-1] + copyList[size/2]) / 2 ),
+				third_quartile);
+		return 0;
+	}
+
+
 
 	if(size%2){
 		return (copyList[size/2]);

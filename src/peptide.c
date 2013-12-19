@@ -743,16 +743,16 @@ int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass, char 
 				float *tempLindex = bestHit-1;
 				float ppmLerror = 1;
 				while((tempLindex >= head) &&
-					(ppmLerror = fabs( (*tempLindex) - isoMass[i])/ isoMass[i]) >= ppmCutOff &&
-					(sp->intList[bestHit-tempLindex] < 0.001)){
+					(ppmLerror = fabs( (*tempLindex) - isoMass[i])/ isoMass[i]) <= ppmCutOff &&
+					(sp->intList[tempLindex-head] < 0.001)){
 
 					--tempLindex;
 				}
 				float *tempRindex = bestHit+1;
 				float ppmRerror = 1;
 				while((tempRindex <= tail) &&
-					(ppmRerror = fabs( (*tempRindex) - isoMass[i])/ isoMass[i]) >= ppmCutOff &&
-					(sp->intList[bestHit-tempRindex] < 0.001)){
+					(ppmRerror = fabs( (*tempRindex) - isoMass[i])/ isoMass[i]) <= ppmCutOff &&
+					(sp->intList[tempRindex-head] < 0.001)){
 
 					++tempRindex;
 				}
@@ -761,7 +761,7 @@ int checkChargeStates(ScanPointer sp, float *foundPattern, float *isoMass, char 
 
 			// I have found the most precise recorded mz within the
 			// theoretical window. If at least part of the peak falls here
-			// than sum that peak.
+			// then sum that peak.
 			float *bestInt = sp->intList+(bestHit-head);
 			if(sp->intList[bestHit-head] > 0){
 				tempIndex = bestInt;

@@ -110,7 +110,7 @@ double **leastSquares(double **rt, double *median, int peptideCount,
 		int n = 0;
 		/*Get run rt and median rt when run rt is not zero*/ 
 		for(j=0; j<peptideCount; ++j){
-			if(rt[j][i] != 0){
+			if(rt[j][i] != 0 && median[j] != 0){
 				y[n] = rt[j][i];
 				x[n] = median[j];
 				n++;
