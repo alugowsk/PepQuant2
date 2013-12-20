@@ -218,18 +218,16 @@ int main(int argc, char *argv[]){
 	/*correct for 0 median ms1 and ms2 RT*/
 	int rem_count = 0;
 	i = 0;
-	while ( i < peptideCount ) {
+	for(i=0; i < peptideCount; ++i ) {
 		if (ms1median[i] == 0 && ms2median[i] == 0){
-			++rem_count;
-			free(ms2rt[i]);
-			ms2rt[i] = ms2rt[peptideCount-1];
+			free(ms2rt[i-rem_count]);
+			ms2rt[i-rem_count] = ms2rt[peptideCount-1];
 			ms2rt[peptideCount-1] = NULL;
-			free(peptides[i]);
-			peptides[i]= peptides[peptideCount-1];
+			free(peptides[i-rem_count]);
+			peptides[i-rem_count]= peptides[peptideCount-1];
 			peptides[peptideCount-1] = NULL;
 			--peptideCount;
-		} else {
-			i++;
+			++rem_count;
 		}
 	}
 	printf("Removed %d peptides for 0 median ms1 and ms2 RTs", rem_count);
