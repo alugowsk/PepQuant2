@@ -23,7 +23,7 @@
 
 #include "peptide.h"
 #include "common.h" //MIN_CHARGE
-#include "global.h" //maxCharge
+#include "global.h" //maxCharge, dataList
 #include "mzXML.h" //MZXMLPointer, readMZXML, delMZXML
 #include "isotope.h" //AMINO_ACIDS
 
@@ -205,6 +205,13 @@ void *makePeptideThreadFunc( void *ptr );
  */
 void sendModsLeft(char *sequence);
 
+/*
+ * inList - check whether the passed filename is within the user defined data
+ *     list. If so return the path in the user defined list otherwise return
+ *     NULL.
+ */
+char *inList(char *filename);
+
 ///////////////////////////////////////////////////////////////////////////////
 //                       END OF FUNCTION DECLARATIONS                        //
 ///////////////////////////////////////////////////////////////////////////////
@@ -313,6 +320,13 @@ SpectraFileNodePointer newSpectraFileNode(char *rawFile, int scanNum,
 
 SpectraFileNodePointer addSpectraFileNode(SpectraFileNodePointer root,
 	char *rawFile, int scanNum, float *intensity, float *corr){
+
+	// added 2014-01-20 check if data list was passed, if so check if rawfile
+	// is in that list and update it's real path if it is
+	if(dataList){
+		rawFile = inList(rawFile);
+		if(!rawFile) return root;
+	}
 
 	SpectraFileNodePointer cur;
 	SpectraFileNodePointer prev;
@@ -872,6 +886,16 @@ void sendModsLeft(char *sequence){
 }
 
 
+char *inList(char *filename)
+{
+	for(size_t i=0; i<dataCount; ++i)
+	{
+		if(strstr(dataList[i], filename)) return dataList[i];
+	}
+	return NULL;
+}
+
+
 SpectraFileNodePointer delSpectraFileList(SpectraFileNodePointer sfnp){
 	if(sfnp == NULL){
 		return NULL;
@@ -1246,6 +1270,7 @@ void searchMzXMLs(PeptidePointer *peptides, int peptideCount,
 						while(snp != NULL){
 							snp->rt = 
 								mzXML->scans[snp->scanNum-1]->retentionTime;
+
 							/* since we are not using snp->intensity for
 							   ms2 scans lets use it to store TIC*/
 							snp->intensity = (float*)malloc(sizeof(float));
@@ -1279,20 +1304,30 @@ void searchMzXMLs(PeptidePointer *peptides, int peptideCount,
 	free(packages);
 }
 
-
 int initFilelist(SpectraFileNodePointer *filelist, PeptidePointer *peptides,
 	int peptideCount){
 
 	SpectraFileNodePointer root = NULL;
 	int i;
+
 	for(i = 0; i < peptideCount; ++i){
 		SpectraFileNodePointer sfnp = peptides[i]->spectraFiles;
-		while(sfnp != NULL){
+		while(sfnp){
 			root = addSpectraFileNode(root,
 				sfnp->rawFile, 0, NULL, NULL);
 			sfnp = sfnp->next;
 		}
 	}
+
+	// if user specified a list of data files ensure they are all included
+	if (dataList)
+	{
+		for (i=0; i<dataCount; ++i)
+		{
+			root = addSpectraFileNode(root, dataList[i], 0, NULL, NULL);
+		}
+	}
+
 	(*filelist) = root;
 	int fileCount = 0;
 	while(root != NULL){

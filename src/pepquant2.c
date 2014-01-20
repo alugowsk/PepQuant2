@@ -57,6 +57,7 @@ int lys = 0; //SILAC label status
 int arg = 0; //SILAC label status
 bool ignoreModSite = false; //ignore modifcation localization
 char **dataList = NULL; //a user requested list of data files to use
+size_t dataCount = 0; // the number of files in the user specified dataList
 
 
 /*
@@ -294,8 +295,8 @@ int main(int argc, char *argv[]){
 	/*Cleanup*/
 	printf("Cleaning up.\n");
 	proteinMap = delProteinMap(proteinMap, peptideCount);
-	pp = delPeptideList(pp);
 	free(peptides);
+	pp = delPeptideList(pp);
 	pnp = delProteinList(pnp);
 	filelist =  delSpectraFileList(filelist);
 	delFasta(fasta);

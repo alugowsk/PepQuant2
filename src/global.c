@@ -280,7 +280,8 @@ char **parseFileList(char *filelist_name){
 			if(filename)
 			{
 				strncpy(filename, line, length+1);
-				filelist[count++] = filename;
+				filelist[count] = filename;
+				++count;
 			}
 			else
 			{
@@ -294,6 +295,8 @@ char **parseFileList(char *filelist_name){
 					line);
 		}
 	}
+	fclose(fp);
+	dataCount = count;
 	return filelist;
 }
 

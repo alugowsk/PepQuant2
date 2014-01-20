@@ -31,6 +31,7 @@ src/gitversion.c: .git/HEAD .git/index
 clean:
 	rm -f main
 	rm -rf obj
+	rm -f src/gitversion.c
 
  
 #include the dependency information

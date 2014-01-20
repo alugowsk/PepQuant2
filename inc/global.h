@@ -25,6 +25,7 @@
 #define GLOBAL_H
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 extern int alignWindow;
 extern double corrCutOff;
@@ -44,6 +45,7 @@ extern char *pepXMLdir;
 extern char *maxQuant;
 extern bool ignoreModSite;
 extern char **dataList;
+extern size_t dataCount;
 
 extern const char *gitversion;
 extern const char *commit;
