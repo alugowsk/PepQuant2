@@ -43,6 +43,7 @@ extern int statQuestcutoff;
 extern char *pepXMLdir;
 extern char *maxQuant;
 extern bool ignoreModSite;
+extern char **dataList;
 
 extern const char *gitversion;
 extern const char *commit;

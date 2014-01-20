@@ -56,6 +56,7 @@ char *maxQuant = NULL; //parse maxQuant results (msms.txt)
 int lys = 0; //SILAC label status 
 int arg = 0; //SILAC label status
 bool ignoreModSite = false; //ignore modifcation localization
+char **dataList = NULL; //a user requested list of data files to use
 
 
 /*

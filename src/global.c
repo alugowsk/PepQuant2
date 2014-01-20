@@ -23,9 +23,12 @@
 
 #include "global.h"
 
-#include <stdlib.h> //atoi, atof
-#include <stdio.h> //fprintf
+#include <stdlib.h> //atoi, atof, malloc, exit
+#include <stdio.h> //fprintf, fopen, flcose, scanf, fgets, rewind
+#include <string.h> // strncpy, strlen, strcspn
 #include <stdbool.h>
+
+#define MAX_LINE 1024
 
 /*
  * printUsage - Print simple usage instructions.
@@ -36,6 +39,17 @@ void printUsage();
  * printHelp - Print more verbose help, describing options and what they do.
  */
 void printHelp();
+
+/*
+ * parseFileList - extract the list of mzXMLs to use for quantitation from the
+ *     user provided file.
+ */
+char **parseFileList(char *filelist_name);
+
+/*
+ * file_exists - return true if the passed file exists
+ */
+bool file_exists(const char* filename);
 
 void parseArgs(int argc, char *argv[]){
 	int i = 1;
@@ -74,6 +88,11 @@ void parseArgs(int argc, char *argv[]){
 			case 'k':
 			case 'K':
 				lys = atoi(argv[i+1]);
+				i+=2;
+				break;
+			case 'l':
+			case 'L':
+				dataList = parseFileList(argv[i+1]);
 				i+=2;
 				break;
 			case 'm':
@@ -143,6 +162,7 @@ void parseArgs(int argc, char *argv[]){
 			!(maxQuant || pepXMLdir || (statQuestdir && statQuestcutoff) ) 
 	){
 		printUsage();
+		exit(EXIT_FAILURE);
 	}
 
 	return;
@@ -211,3 +231,79 @@ void printHelp(){
 	return;
 }
 
+char **parseFileList(char *filelist_name){
+	char **filelist = NULL;
+
+	// open file
+	FILE *fp = fopen(filelist_name, "r");
+	if (!fp) {
+   		fprintf(stderr, "Error opening file: %s !\n", "filelist_name");
+   		fprintf(stderr, "Will continue with auto-generated mzXML file list\n");
+   		return NULL;
+	}
+
+	// count the number of lines in the file and reset file pointer
+	size_t lines = 0;
+	char line[MAX_LINE];
+	while (fgets(line,sizeof(line),fp) != NULL)
+	{
+		line[strcspn ( line, "\n" )] = '\0';
+		line[strcspn ( line, "\r" )] = '\0';
+		if(strlen(line))
+		{
+			++lines;
+		}
+	}
+
+	rewind(fp);
+
+	// allocate room for file list
+	filelist = (char**)malloc(lines * sizeof(char *));
+	if (!filelist)
+	{
+		fprintf(stderr, "Could not allocate memory for file list\n");
+   		fprintf(stderr, "Will continue with auto-generated mzXML file list\n");
+   		return NULL;
+	}
+
+	// populate file list
+	//char line[MAX_LINE];
+	size_t count = 0;
+	while (fgets(line,sizeof(line),fp) != NULL)
+	{
+		/*remove newline*/
+		line[strcspn ( line, "\n" )] = '\0';
+		line[strcspn ( line, "\r" )] = '\0';
+		if (file_exists(line)){
+			int length = strlen(line);
+			char *filename = (char *)malloc(length + 1);
+			if(filename)
+			{
+				strncpy(filename, line, length+1);
+				filelist[count++] = filename;
+			}
+			else
+			{
+				fprintf(stderr, "Memory for file %s could not be allocated!"
+						"(skipping)\n", line);
+			}
+		}
+		else
+		{
+			fprintf(stderr, "File: %s, could not be opened! (skipping)\n",
+					line);
+		}
+	}
+	return filelist;
+}
+
+bool file_exists(const char* filename)
+{
+	FILE *fp = fopen(filename, "r");
+	if (fp)
+	{
+		fclose(fp);
+		return true;
+	}
+	return false;
+}
