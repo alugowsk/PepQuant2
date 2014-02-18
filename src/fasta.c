@@ -71,6 +71,13 @@ void trimFastaDB(FastaPointer fp);
  */
 void appendSequence(EntryPointer ep, char *addSequence);
 
+/*
+ * getSequence - Given a FastaPointer and a protein name, look through the
+ *     FASTA database and return the sequence of the corresponding protein
+ *     if it is present in the database. Otherwise, return NULL.
+ */
+char *getSequence(FastaPointer fasta, char *protName);
+
 ///////////////////////////////////////////////////////////////////////////////
 //                       END OF FUNCTION DECLARATIONS                        //
 ///////////////////////////////////////////////////////////////////////////////
@@ -147,6 +154,10 @@ FastaPointer newFasta(){
 			free(fp);
 			fp = NULL;
 		}
+		int i;
+		for(i = 0; i < fp->size; ++i){
+			fp->db[i] = NULL;
+		}
 	}
 	return fp;
 }
@@ -202,33 +213,68 @@ void initCoverage(EntryPointer ep){
 }
 
 
-int readFASTA(char *filename, FastaPointer *fasta ){
-	/*try to open FASTA file*/
-	FILE *fp = fopen(filename, "r");
-	if(fp == NULL){
-		fprintf(stderr, "\nERROR: opening %s\n", filename);
-		exit(1);
+char *getSequence(FastaPointer fasta, char *protName)
+{
+	int i;
+
+	for(i = 0; i < fasta->size; ++i)
+	{
+		if(fasta->db[i] != NULL){
+			printf("%s | %s\n",fasta->db[i]->id, protName );
+		}
+		if(fasta->db[i] != NULL && !strcmp(fasta->db[i]->id, protName) )
+		{
+			return fasta->db[i]->sequence;
+		}
 	}
+	return NULL;
+}
+
+
+int readFASTA(char *filename, FastaPointer *fasta ){
 
 	(*fasta) = newFasta();
 
-	/*read from fasta and create entry for every protein*/
-	char line[MAX_LINE];
-	EntryPointer ep = NULL;
-	while(fgets(line,sizeof(line),fp) != NULL){
+	char *tokens;
+	tokens = strtok(filename, ";");
 
-		/*remove newline*/
-		line[strcspn ( line, "\n" )] = '\0';
-		line[strcspn ( line, "\r" )] = '\0';
+	while (tokens != NULL) {
 
-		if(line[0] == '>'){
-			ep = newEntry(line);
-			if(ep != NULL){
-				addEntry((*fasta), ep);
-			}
-		}else{
-			appendSequence(ep, line);
+		/*try to open FASTA file*/
+		FILE *fp = fopen(tokens, "r");
+		if(fp == NULL){
+			fprintf(stderr, "\nERROR: opening %s\n", tokens);
+			exit(1);
 		}
+		printf("%s\n", tokens);
+
+
+		/*read from fasta and create entry for every protein*/
+		char line[MAX_LINE];
+		EntryPointer ep = NULL;
+		while(fgets(line,sizeof(line),fp) != NULL){
+
+			/*remove newline*/
+			line[strcspn ( line, "\n" )] = '\0';
+			line[strcspn ( line, "\r" )] = '\0';
+
+			if(line[0] == '>'){
+				if (getSequence((*fasta), line) != NULL){
+					printf("here as well\n");
+					ep = NULL;
+				} else {
+					ep = newEntry(line);
+					if(ep != NULL){
+						addEntry((*fasta), ep);
+					}
+				}
+			}else if (ep != NULL){
+				appendSequence(ep, line);
+			}
+		}
+
+		fclose(fp);
+		tokens = strtok(NULL, ";");
 	}
 
 	trimFastaDB((*fasta));
