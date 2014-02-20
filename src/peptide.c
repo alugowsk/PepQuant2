@@ -615,7 +615,7 @@ PeptidePointer newPeptide(char *rawFile, int scanNum, char *sequence){
 			free(pp);
 		}else{
 			strncpy(pp->sequence, sequence, strlen(sequence)+1);
-			pp->spectraFiles = newSpectraFileNode(rawFile, scanNum, NULL, NULL);
+			pp->spectraFiles = addSpectraFileNode(NULL, rawFile, scanNum, NULL, NULL);
 			pp->ms1SpectraFiles = NULL;
 			pp->ip = NULL;
 			pp->colour = RED;

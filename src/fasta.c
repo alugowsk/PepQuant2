@@ -250,8 +250,12 @@ int readFASTA(char *filename, FastaPointer *fasta ){
 		while(fgets(line,sizeof(line),fp) != NULL){
 
 			/*remove newline*/
-			line[strcspn ( line, "\n" )] = '\0';
-			line[strcspn ( line, "\r" )] = '\0';
+			char *newline = strrchr(line, '\r');
+			if (newline)
+				*newline = '\0';
+			newline = strchr(line, '\n');
+			if (newline)
+				*newline = '\0';
 
 			if(line[0] == '>'){
 				if (getSequence((*fasta), line) != NULL){
@@ -298,14 +302,18 @@ void delFasta(FastaPointer fp){
 
 char *findProtein(FastaPointer fasta, char* sequence){
 	int i;
-	char * prots = (char*)malloc(sizeof(char) );
+	char * prots = (char*)malloc( 1 );
 	prots[0] = '\0';
 	for(i = 0; i < fasta->size; ++i){
 		if(strstr(fasta->db[i]->sequence, sequence) != NULL){
-			int combinedLength = strlen(prots) + strlen(fasta->db[i]->id) + 2;
-			prots = (char *)realloc(prots, combinedLength*sizeof(char) );
+			size_t old_length = strlen(prots);
+			size_t new_length = strlen(fasta->db[i]->id);
+			if (old_length)
+				old_length += 3; //add three for ';;;'
+			prots = (char *)realloc(prots, old_length + new_length + 1);
+			if (old_length)
+				strcat(prots, ";;;"); //separate proteins in list
 			strcat(prots, fasta->db[i]->id);
-			strcat(prots, ";"); //seperate proteins in list
 			/*record the index of the matched protein will be used later to
 			track coverage*/
 			fasta->index = i; 

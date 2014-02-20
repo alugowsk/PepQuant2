@@ -161,6 +161,31 @@ ProteinNodePointer addProteinNode(ProteinNodePointer root, char *id,
 	}
 }
 
+/*
+ * strrstr - given two strings, return a  pointer to the last occurrence of
+ *     str2 in str1, NULL if str2 is not a substring of str1.
+ */
+char *strrstr(const char* str1, const char *str2)
+{
+	size_t str1len = strlen(str1);
+	size_t str2len = strlen(str2);
+
+	if (str2len > str1len)
+		return NULL;
+
+	char *pos = strrchr(str1, str2[str2len-1]);
+	if (pos)
+		pos -= (str2len - 1);
+
+	while ( pos && pos >= str1 )
+	{
+		if ( !strncmp(pos, str2, str2len) )
+			return pos;
+		--pos;
+	}
+	return NULL;
+}
+
 
 int pep2prot(ProteinNodePointer *root, FastaPointer fasta,
 	PeptidePointer *peptides, double **pepQuant, double **spectralCounts,
@@ -192,9 +217,9 @@ int pep2prot(ProteinNodePointer *root, FastaPointer fasta,
 		char *prots = findProtein(fasta, stripped);		
 		/*check to see if only one ; in returned string, i.e. only one protein
 		  in ';' seperated list.*/
-		if( prots != NULL && strchr(prots, ';') == strrchr(prots, ';') ){
+		if( prots != NULL && strstr(prots, ";;;") == strrstr(prots, ";;;") ){
 			trackCoverage(fasta, stripped);
-			prots[strlen(prots)-1] = '\0'; //remove ';' from protein name
+			//prots[strlen(prots)-1] = '\0'; //remove ';' from protein name
 			pnp = addProteinNode(pnp, prots, pepQuant[i], spectralCounts[i],
 				fileCount, isHeavy);
 		}
