@@ -110,7 +110,10 @@ double **leastSquares(double **rt, double *median, int peptideCount,
 		int n = 0;
 		/*Get run rt and median rt when run rt is not zero*/ 
 		for(j=0; j<peptideCount; ++j){
-			if(rt[j][i] != 0 && median[j] != 0){
+			if(rt[j][i] != 0 && median[j] != 0
+					// 2014-07-16 added below
+					// check to align on well behaved peptides only
+					&& fabs(rt[j][i] - median[j]) < alignWindow){
 				y[n] = rt[j][i];
 				x[n] = median[j];
 				n++;
