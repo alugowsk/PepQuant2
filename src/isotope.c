@@ -354,8 +354,8 @@ void newIPCollection(IsotopicPatternPointer **IPCollection){
 	(*IPCollection)['R'] = makeMolecule(6, 12, 4, 1, 0, 0, 0, 0); //Arg R
 	(*IPCollection)['N'] = makeMolecule(4, 6, 2, 2, 0, 0, 0, 0); //Asn N
 	(*IPCollection)['D'] = makeMolecule(4, 5, 1, 3, 0, 0, 0, 0); //Asp D
-	//(*IPCollection)['C'] = makeMolecule(3, 5, 1, 1, 0, 1, 0, 0); //Cys C
-	(*IPCollection)['C'] = makeMolecule(5, 8, 2, 2, 0, 1, 0, 0);
+	(*IPCollection)['C'] = makeMolecule(3, 5, 1, 1, 0, 1, 0, 0); //Cys C
+	//(*IPCollection)['C'] = makeMolecule(5, 8, 2, 2, 0, 1, 0, 0);
 	//Cys C + H3C2NO
 	(*IPCollection)['Q'] = makeMolecule(5, 8, 2, 2, 0, 0, 0, 0); //Gln Q
 	(*IPCollection)['E'] = makeMolecule(5, 7, 1, 3, 0, 0, 0, 0); //Glu E
@@ -396,6 +396,7 @@ void newIPCollection(IsotopicPatternPointer **IPCollection){
 	(*IPCollection)[1] = makeMolecule(0, 1, 0, 3, 1, 0, 0, 0); //P03H (ph)
 	(*IPCollection)[2] = makeMolecule(0, 0, 0, 1, 0, 0, 0, 0); //O (ox)
 	(*IPCollection)[3] = makeMolecule(2, 2, 0, 1, 0, 0, 0, 0); //C2H2O (ac)
+	(*IPCollection)[4] = makeMolecule(2, 3, 1, 1, 0, 0, 0, 0); //H3C2NO (cb)
 
 	return;
 }
@@ -439,8 +440,7 @@ IsotopicPatternPointer makePeptide(
 			}else if(sequence[i] =='p'){
 				temp = combineIsotopicPatterns(peptide, IPCollection[1]);
 			}else if(sequence[i] =='c'){
-				// do nothing C is carbidomethylated by default
-				temp = peptide;
+				temp = combineIsotopicPatterns(peptide, IPCollection[4]);
 			}else{
 				printf("Unknown mod in seq: %s\n", sequence);
 			}
