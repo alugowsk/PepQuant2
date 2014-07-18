@@ -440,6 +440,7 @@ IsotopicPatternPointer makePeptide(
 				temp = combineIsotopicPatterns(peptide, IPCollection[1]);
 			}else if(sequence[i] =='c'){
 				// do nothing C is carbidomethylated by default
+				temp = peptide;
 			}else{
 				printf("Unknown mod in seq: %s\n", sequence);
 			}
