@@ -135,6 +135,11 @@ void parseArgs(int argc, char *argv[]){
 				printf("PepQuant2\n\tcommit: %s\n\tversion: %s\n",
 						commit, gitversion);
 				exit(EXIT_SUCCESS);
+			case 'w':
+			case 'W':
+				fuse = argv[i+1];
+				i+=2;
+				break;
 			case 'x':
 			case 'X':
 				statQuestdir = argv[i+1];

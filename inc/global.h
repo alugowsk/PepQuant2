@@ -43,6 +43,7 @@ extern char *statQuestdir;
 extern int statQuestcutoff;
 extern char *pepXMLdir;
 extern char *maxQuant;
+extern char *fuse;
 extern bool ignoreModSite;
 extern char **dataList;
 extern size_t dataCount;

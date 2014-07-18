@@ -1451,3 +1451,48 @@ PeptidePointer parseStatQuestdir(char *dirName, int cutoff){
 	return pp;
 }
 
+PeptidePointer parseFuse(char *filename, PeptidePointer pp){
+
+	if(filename == NULL){
+		fprintf(stderr,
+			"\nERROR: Could not parse search results. Filename was NULL.\n");
+		exit(1);
+	}
+
+	/*try to open parseMaxQuant results file*/
+	FILE *fp = fopen(filename, "r");
+	if(fp == NULL){
+		printf("\nERROR: opening %s\n", filename);
+		exit(1);
+	}else{
+		char line[8096];
+		while ( fgets (line ,8095, fp) != NULL ){
+			int i;
+			char *tokens = strtok(line, "\t");
+			/*first line contains headers and must be skipped*/
+			if(strcmp("Sequence", tokens) ){
+				char *rawFile = NULL;
+				int scanNum = -1;
+				char *sequence = NULL;
+				for(i = 0; i < 3; ++i){
+					if(i == 1){
+						rawFile = tokens;
+					}else if(i == 2){
+						scanNum = atoi(tokens);
+					}else if(i == 0){
+						sequence = tokens;
+					}
+					tokens = strtok(NULL, "\t");
+				}
+				pp = addPeptide(pp, rawFile, scanNum, sequence);
+				if( (lys && strchr(sequence, 'K')) || //if heavy K and seq has K
+					(arg && strchr(sequence, 'R')) ){ //if heavy R and seq has R
+					sequence[0] = '*'; //mark seq as heavy
+					pp = addPeptide(pp, rawFile, scanNum, sequence);
+				}
+			}
+		}
+		fclose (fp);
+	}
+	return pp;
+}

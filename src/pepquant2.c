@@ -53,6 +53,7 @@ char *statQuestdir = NULL; //parse statQuest results (statQuest directory)
 int statQuestcutoff = 0; //confidence filter to use for statQuest results
 char *pepXMLdir = NULL; //parse pepXML results (directory with .pepXML files)
 char *maxQuant = NULL; //parse maxQuant results (msms.txt)
+char *fuse = NULL; //parse fuse results (*.csv)
 int lys = 0; //SILAC label status 
 int arg = 0; //SILAC label status
 bool ignoreModSite = false; //ignore modifcation localization
@@ -125,6 +126,9 @@ int main(int argc, char *argv[]){
 	}else if(statQuestdir){
 		printf("Parsing statQuest directory.\n");
 		pp = parseStatQuestdir(statQuestdir, statQuestcutoff);
+	}else if(fuse){
+		printf("Parsing fuse results.\n");
+		pp = parseFuse(fuse, pp);
 	}else{
 		fprintf(stderr, "\nERROR: no input file(s) specified!\n");
 		exit(EXIT_FAILURE);

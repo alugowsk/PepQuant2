@@ -183,5 +183,7 @@ PeptidePointer *inOrder(PeptidePointer root, int count);
  */
 PeptidePointer parseStatQuestdir(char *dirName, int cutOff);
 
+PeptidePointer parseFuse(char *filename, PeptidePointer pp);
+
 #endif
 
